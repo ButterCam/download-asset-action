@@ -29,6 +29,8 @@ async function run() {
         });
         releases = releases.data;
 
+        core.info("get releases")
+
         if (excludes) {
             if (excludes.includes('prerelease')) 
                 releases = releases.filter(rel => rel.prerelease != true);
@@ -47,15 +49,19 @@ async function run() {
         if (assets.length === 0)
             throw new Error("No matching assets");
 
+            
+        core.info("get asset start")
+
         asset = await octokit.repos.getReleaseAsset({
             headers: {
                 Accept: "application/octet-stream",
-                authorization: `token ${authentication.token}`
             },
             owner: owner,
             repo: repo,
             asset_id: assets[0].id
         });
+
+        core.info("get asset")
 
         // Save asset to target and set output
         await save(asset.data, path.join(target, assets[0].name));
