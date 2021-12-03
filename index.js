@@ -24,7 +24,7 @@ async function run() {
             owner: owner,
             repo: repo,
             headers: {
-                authentication: `token ${authentication.token}`
+                authorization: `token ${authentication.token}`
             }
         });
         releases = releases.data;
@@ -50,7 +50,7 @@ async function run() {
         asset = await octokit.repos.getReleaseAsset({
             headers: {
                 Accept: "application/octet-stream",
-                authentication: `token ${authentication.token}`
+                authorization: `token ${authentication.token}`
             },
             owner: owner,
             repo: repo,
