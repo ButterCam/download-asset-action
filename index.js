@@ -3,8 +3,8 @@ const { Octokit } = require("@octokit/rest");
 const { createActionAuth } = require("@octokit/auth-action");
 const { save } = require("save-file");
 const path = require('path');
-const https = require('https')
-const fs = require('fs');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 async function run() {
     try {
@@ -52,21 +52,12 @@ async function run() {
             throw new Error("No matching assets");
 
             
-        core.info("get asset start")
 
-        const file = fs.createWriteStream(path.join(target, assets[0].name));
-        https.request({
-            hostname: 'api.github.com',
-            path: `/repos/${owner}/${repo}/releases/assets/${assets[0].id}`,
-            port: 443,
-            headers: {
-                Accept: "application/octet-stream",
-                authorization: `token ${authentication.token}`
-            },
-            method: 'GET'
-        }, (response) => {
-            response.pipe(file);
-        })
+        const curl = `curl -J -L -H "Accept: application/octet-stream" -H "Authorization: token ${TOKEN}" https://api.github.com/repos/${owner}/${repo}/releases/assets/${assets[0].id} --create-dirs -o ${path.join(target, assets[0].name)}`;
+        core.info("get asset start")
+        core.info(curl)
+
+        await exec(curl)
 
         core.info("get asset")
 
