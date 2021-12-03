@@ -53,7 +53,7 @@ async function run() {
 
             
 
-        const curl = `curl -J -L -H "Accept: application/octet-stream" -H "Authorization: token ${TOKEN}" https://api.github.com/repos/${owner}/${repo}/releases/assets/${assets[0].id} --create-dirs -o ${path.join(target, assets[0].name)}`;
+        const curl = `curl -J -L -H "Accept: application/octet-stream" -H "Authorization: token ${authentication.token}" https://api.github.com/repos/${owner}/${repo}/releases/assets/${assets[0].id} --create-dirs -o ${path.join(target, assets[0].name)}`;
         core.info("get asset start")
         core.info(curl)
 
