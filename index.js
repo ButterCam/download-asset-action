@@ -6,10 +6,11 @@ const path = require('path');
 
 async function run() {
     try {
+        const auth = createActionAuth();
+        const authentication = await auth();
+
         // Authentication
-        const octokit = new Octokit({
-            authStrategy: createActionAuth
-        });
+        const octokit = new Octokit();
 
         // Inputs
         const [owner, repo] = core.getInput('repository').split("/");
@@ -22,6 +23,9 @@ async function run() {
         let releases  = await octokit.repos.listReleases({
             owner: owner,
             repo: repo,
+            headers: {
+                authentication: `token ${authentication.token}`
+            }
         });
         releases = releases.data;
 
@@ -45,7 +49,8 @@ async function run() {
 
         asset = await octokit.repos.getReleaseAsset({
             headers: {
-                Accept: "application/octet-stream"
+                Accept: "application/octet-stream",
+                authentication: `token ${authentication.token}`
             },
             owner: owner,
             repo: repo,
