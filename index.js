@@ -3,6 +3,8 @@ const { Octokit } = require("@octokit/rest");
 const { createActionAuth } = require("@octokit/auth-action");
 const { save } = require("save-file");
 const path = require('path');
+const https = require('https')
+const fs = require('fs');
 
 async function run() {
     try {
@@ -52,19 +54,23 @@ async function run() {
             
         core.info("get asset start")
 
-        asset = await octokit.repos.getReleaseAsset({
+        const file = fs.createWriteStream(path.join(target, assets[0].name));
+        https.request({
+            hostname: 'api.github.com',
+            path: `/repos/${owner}/${repo}/releases/assets/${assets[0].id}`,
+            port: 443,
             headers: {
                 Accept: "application/octet-stream",
+                authorization: `token ${authentication.token}`
             },
-            owner: owner,
-            repo: repo,
-            asset_id: assets[0].id
-        });
+            method: 'GET'
+        }, (response) => {
+            response.pipe(file);
+        })
 
         core.info("get asset")
 
         // Save asset to target and set output
-        await save(asset.data, path.join(target, assets[0].name));
         core.setOutput('name', assets[0].name)
     }
     catch (error) {
